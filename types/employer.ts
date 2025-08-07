@@ -1,77 +1,59 @@
-export interface EmployerFormData {
+export interface CompanyInfo {
   companyName: string;
-  companyTagline: string;
-  companyDescription: string;
-  industryType: string;
+  industry: string;
   companySize: string;
   foundedYear: string;
-  companyType: string;
+  description: string;
+}
+
+export interface ContactInfo {
   website: string;
   email: string;
   phone: string;
-  headquarters: string;
-  country: string;
-  state: string;
+  address: string;
   city: string;
-  linkedinUrl: string;
-  twitterUrl: string;
-  facebookUrl: string;
-  instagramUrl: string;
-  registrationNumber: string;
-  taxId: string;
-  benefits: string[];
-  workCulture: string;
-  mission: string;
-  vision: string;
+  country: string;
 }
 
-export type IndustryType =
-  | "Technology"
-  | "Healthcare"
-  | "Finance"
-  | "Education"
-  | "Manufacturing"
-  | "Retail"
-  | "Consulting"
-  | "Media & Entertainment"
-  | "Real Estate"
-  | "Transportation"
-  | "Energy"
-  | "Agriculture"
-  | "Government"
-  | "Non-Profit"
-  | "Other";
+export interface EmployerSetupData {
+  companyInfo: CompanyInfo;
+  contactInfo: ContactInfo;
+  logo: File | null;
+}
 
-export type CompanySize =
-  | "1-10 employees"
-  | "11-50 employees"
-  | "51-200 employees"
-  | "201-500 employees"
-  | "501-1000 employees"
-  | "1000+ employees";
+export interface StepProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  isCompleted: boolean;
+  isActive: boolean;
+}
 
-export type CompanyType =
-  | "Private Company"
-  | "Public Company"
-  | "Startup"
-  | "Non-Profit"
-  | "Government Agency"
-  | "Educational Institution"
-  | "Partnership"
-  | "Sole Proprietorship";
+export interface InputFieldProps {
+    label: string;
+    name: string;
+    type?: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+    required?: boolean;
+}
 
-  export interface InputFieldProps {
+export interface SelectFieldProps {
   label: string;
   name: string;
   value: string;
-  onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  type?: string;
-  placeholder?: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: { value: string; label: string }[];
   required?: boolean;
-  icon?: React.ReactNode;
-  isTextarea?: boolean;
+}
+
+export interface TextAreaFieldProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
   rows?: number;
-  options?: readonly string[];
-  min?: string | number;
-  max?: string | number;
+  required?: boolean;
 }
