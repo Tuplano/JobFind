@@ -17,12 +17,12 @@ import {
 
 import StepIndicator from "@/components/employer-setup/StepIndicator";
 import FormStep from "@/components/employer-setup/FormStep";
-import InputField from "@/components/employer-setup/InputField";
-import SelectField from "@/components/employer-setup/SelectField";
-import TextAreaField from "@/components/employer-setup/TextAreaField";
+import InputField from "@/components/ui/InputField";
+import SelectField from "@/components/ui/SelectField";
+import TextAreaField from "@/components/ui/TextAreaField";
 import LogoUpload from "@/components/employer-setup/LogoUpload";
 
-import { toast } from "sonner"; // ✅ import toast
+import { toast } from "sonner";
 
 const STEPS = [
   {

@@ -10,8 +10,8 @@ import {
   ArrowRight,
   CheckCircle,
 } from "lucide-react";
-import InputField from "@/components/ui/InputField";
 import UserTypeCard from "@/components/signup-page/UserTypeCard";
+import InputField from "@/components/ui/InputField";
 import { LoginData, SignupData } from "@/types/Signup";
 
 const AuthPage: React.FC = () => {
@@ -267,17 +267,14 @@ const AuthPage: React.FC = () => {
           {isLogin ? (
             /* Login Form */
             <div className="space-y-6">
-              <InputField
-                label="Email Address"
-                name="email"
-                type="email"
-                value={loginData.email}
-                onChange={handleLoginChange}
-                placeholder="Enter your email"
-                icon={<Mail size={20} />}
-                required
-                error={errors.email}
-              />
+                  <InputField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={loginData.email}
+                    onChange={handleLoginChange}
+                    required
+                  />
 
               <div className="relative">
                 <InputField
@@ -287,9 +284,7 @@ const AuthPage: React.FC = () => {
                   value={loginData.password}
                   onChange={handleLoginChange}
                   placeholder="Enter your password"
-                  icon={<Lock size={20} />}
                   required
-                  error={errors.password}
                 />
                 <button
                   type="button"
@@ -341,7 +336,6 @@ const AuthPage: React.FC = () => {
                   onChange={handleSignupChange}
                   placeholder="John"
                   required
-                  error={errors.firstName}
                 />
                 <InputField
                   label="Last Name"
@@ -350,7 +344,6 @@ const AuthPage: React.FC = () => {
                   onChange={handleSignupChange}
                   placeholder="Doe"
                   required
-                  error={errors.lastName}
                 />
               </div>
 
@@ -361,9 +354,7 @@ const AuthPage: React.FC = () => {
                   value={signupData.companyName || ""}
                   onChange={handleSignupChange}
                   placeholder="Your Company Inc."
-                  icon={<Building2 size={20} />}
                   required
-                  error={errors.companyName}
                 />
               )}
 
@@ -374,9 +365,7 @@ const AuthPage: React.FC = () => {
                 value={signupData.email}
                 onChange={handleSignupChange}
                 placeholder="john@example.com"
-                icon={<Mail size={20} />}
                 required
-                error={errors.email}
               />
 
               <div className="relative">
@@ -387,9 +376,7 @@ const AuthPage: React.FC = () => {
                   value={signupData.password}
                   onChange={handleSignupChange}
                   placeholder="Create a strong password"
-                  icon={<Lock size={20} />}
                   required
-                  error={errors.password}
                 />
                 <button
                   type="button"
@@ -408,9 +395,7 @@ const AuthPage: React.FC = () => {
                   value={signupData.confirmPassword}
                   onChange={handleSignupChange}
                   placeholder="Confirm your password"
-                  icon={<Lock size={20} />}
                   required
-                  error={errors.confirmPassword}
                 />
                 <button
                   type="button"
