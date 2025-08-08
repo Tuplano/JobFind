@@ -1,5 +1,5 @@
-import React from 'react';
-import { SelectFieldProps } from '@/types/employer';
+import React from "react";
+import { SelectFieldProps } from "@/types/employer";
 
 const SelectField: React.FC<SelectFieldProps> = ({
   label,
@@ -10,7 +10,10 @@ const SelectField: React.FC<SelectFieldProps> = ({
   required = false,
 }) => (
   <div>
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-2"
+    >
       {label} {required && <span className="text-red-500">*</span>}
     </label>
     <select

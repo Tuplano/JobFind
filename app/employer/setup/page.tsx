@@ -9,13 +9,11 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
+import { CompanyInfo, ContactInfo, EmployerSetupData } from "@/types/employer";
 import {
-  CompanyInfo,
-  ContactInfo,
-  EmployerSetupData,
-} from "@/types/employer";
-
-import { INDUSTRY_OPTIONS, COMPANY_SIZE_OPTIONS } from "@/app/Constants/Employer";
+  INDUSTRY_OPTIONS,
+  COMPANY_SIZE_OPTIONS,
+} from "@/Constants/Employer";
 
 import StepIndicator from "@/components/employer-setup/StepIndicator";
 import FormStep from "@/components/employer-setup/FormStep";
@@ -23,6 +21,8 @@ import InputField from "@/components/employer-setup/InputField";
 import SelectField from "@/components/employer-setup/SelectField";
 import TextAreaField from "@/components/employer-setup/TextAreaField";
 import LogoUpload from "@/components/employer-setup/LogoUpload";
+
+import { toast } from "sonner"; // ✅ import toast
 
 const STEPS = [
   {
@@ -67,10 +67,11 @@ const EmployerSetupPage: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handleCompanyInfoChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -79,9 +80,7 @@ const EmployerSetupPage: React.FC = () => {
     }));
   };
 
-  const handleContactInfoChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleContactInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -111,7 +110,7 @@ const EmployerSetupPage: React.FC = () => {
           formData.contactInfo.country
         );
       case 3:
-        return true; // Logo is optional
+        return !!formData.logo;
       default:
         return false;
     }
@@ -140,11 +139,13 @@ const EmployerSetupPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("Submitting form data:", formData);
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
-    setSubmitSuccess(true);
-    setTimeout(() => setSubmitSuccess(false), 3000);
+
+    // ✅ Trigger toast notification instead of custom div
+    toast.success("Company profile created successfully!");
   };
 
   const completedSteps = getCompletedSteps();
@@ -190,10 +191,7 @@ const EmployerSetupPage: React.FC = () => {
                     Overall Progress
                   </span>
                   <span className="text-sm font-semibold text-blue-900">
-                    {Math.round(
-                      (completedSteps.length / STEPS.length) * 100
-                    )}
-                    %
+                    {Math.round((completedSteps.length / STEPS.length) * 100)}%
                   </span>
                 </div>
                 <div className="w-full bg-blue-200 rounded-full h-2">
@@ -210,7 +208,6 @@ const EmployerSetupPage: React.FC = () => {
 
           {/* Form Steps */}
           <div className="lg:col-span-3">
-            {/* Step 1 */}
             {currentStep === 1 && (
               <FormStep title="Step 1: Company Information">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -258,7 +255,6 @@ const EmployerSetupPage: React.FC = () => {
               </FormStep>
             )}
 
-            {/* Step 2 */}
             {currentStep === 2 && (
               <FormStep title="Step 2: Contact Information">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -308,7 +304,6 @@ const EmployerSetupPage: React.FC = () => {
               </FormStep>
             )}
 
-            {/* Step 3 */}
             {currentStep === 3 && (
               <FormStep title="Step 3: Company Logo (Optional)">
                 <LogoUpload logo={formData.logo} onChange={handleLogoUpload} />
@@ -350,11 +345,6 @@ const EmployerSetupPage: React.FC = () => {
                       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                       <span>Setting up...</span>
                     </>
-                  ) : submitSuccess ? (
-                    <>
-                      <Check size={20} />
-                      <span>Complete!</span>
-                    </>
                   ) : (
                     <span>Complete Setup</span>
                   )}
@@ -363,14 +353,6 @@ const EmployerSetupPage: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Success Message */}
-        {submitSuccess && (
-          <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50">
-            <Check size={20} />
-            <span>Company profile created successfully!</span>
-          </div>
-        )}
       </div>
     </div>
   );
