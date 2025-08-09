@@ -1,38 +1,42 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { updateSession } from '@/lib/supabase/middleware'
-import { createServerClient } from '@supabase/ssr'
+import { NextRequest, NextResponse } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
+import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  const response = NextResponse.next();
   const supabaseResponse = await createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
-          )
+          );
         },
       },
     }
-  )
+  );
 
-  const { data: { user } } = await supabaseResponse.auth.getUser()
+  const {
+    data: { user },
+  } = await supabaseResponse.auth.getUser();
 
-  const {pathname} = request.nextUrl
+  const { pathname } = request.nextUrl;
 
-  const publicroutes = ['/signup', '/']
-  const isPublicRoute = publicroutes.includes(pathname)
-  
+  const publicroutes = ["/auth", "/", "/auth/callback"];
+  const isPublicRoute = publicroutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
   if (!user && !isPublicRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/signup'
-    return NextResponse.redirect(url)
-}
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth";
+    return NextResponse.redirect(url);
+  }
 }
 
 export const config = {
@@ -44,6 +48,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
-}
+};
