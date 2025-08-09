@@ -1,15 +1,15 @@
 "use client";
-import React, { useState } from "react";
+
+import { useState } from "react";
 import {
   Building2,
   MapPin,
   Upload,
-  Check,
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
 
-import { CompanyInfo, ContactInfo, EmployerSetupData } from "@/types/employer";
+import { EmployerSetupData } from "@/types/employer";
 import {
   INDUSTRY_OPTIONS,
   COMPANY_SIZE_OPTIONS,
@@ -45,7 +45,7 @@ const STEPS = [
   },
 ];
 
-const EmployerSetupPage: React.FC = () => {
+export default function EmployerSetupPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<EmployerSetupData>({
     companyInfo: {
@@ -69,9 +69,7 @@ const EmployerSetupPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCompanyInfoChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -96,45 +94,38 @@ const EmployerSetupPage: React.FC = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(
+        return Boolean(
           formData.companyInfo.companyName &&
-          formData.companyInfo.industry &&
-          formData.companyInfo.companySize &&
-          formData.companyInfo.foundedYear &&
-          formData.companyInfo.description
+            formData.companyInfo.industry &&
+            formData.companyInfo.companySize &&
+            formData.companyInfo.foundedYear &&
+            formData.companyInfo.description
         );
       case 2:
-        return !!(
+        return Boolean(
           formData.contactInfo.email &&
-          formData.contactInfo.city &&
-          formData.contactInfo.country
+            formData.contactInfo.city &&
+            formData.contactInfo.country
         );
       case 3:
-        return !!formData.logo;
+        return Boolean(formData.logo);
       default:
         return false;
     }
   };
 
-  const getCompletedSteps = (): number[] => {
-    const completed = [];
-    for (let i = 1; i <= 3; i++) {
-      if (validateStep(i)) {
-        completed.push(i);
-      }
-    }
-    return completed;
-  };
+  const getCompletedSteps = (): number[] =>
+    STEPS.map((step) => step.id).filter(validateStep);
 
   const nextStep = () => {
-    if (currentStep < 3 && validateStep(currentStep)) {
-      setCurrentStep(currentStep + 1);
+    if (currentStep < STEPS.length && validateStep(currentStep)) {
+      setCurrentStep((prev) => prev + 1);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -143,14 +134,12 @@ const EmployerSetupPage: React.FC = () => {
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsSubmitting(false);
-
-    // ✅ Trigger toast notification instead of custom div
     toast.success("Company profile created successfully!");
   };
 
   const completedSteps = getCompletedSteps();
   const canProceed = validateStep(currentStep);
-  const isLastStep = currentStep === 3;
+  const isLastStep = currentStep === STEPS.length;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -161,8 +150,7 @@ const EmployerSetupPage: React.FC = () => {
             Set Up Your Company Profile
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Complete your company profile to start posting jobs and finding the
-            best talent for your organization.
+            Complete your company profile to start posting jobs and finding the best talent for your organization.
           </p>
         </div>
 
@@ -200,7 +188,7 @@ const EmployerSetupPage: React.FC = () => {
                     style={{
                       width: `${(completedSteps.length / STEPS.length) * 100}%`,
                     }}
-                  ></div>
+                  />
                 </div>
               </div>
             </div>
@@ -356,6 +344,4 @@ const EmployerSetupPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default EmployerSetupPage;
+}

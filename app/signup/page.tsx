@@ -14,7 +14,7 @@ import UserTypeCard from "@/components/signup-page/UserTypeCard";
 import InputField from "@/components/ui/InputField";
 import { LoginData, SignupData } from "@/types/Signup";
 
-const AuthPage: React.FC = () => {
+function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -119,7 +119,6 @@ const AuthPage: React.FC = () => {
     console.log("Login attempt:", loginData);
     setIsLoading(false);
 
-    // Redirect based on user type
     if (loginData.userType === "employer") {
       console.log("Redirecting to employer dashboard");
     } else {
@@ -138,7 +137,6 @@ const AuthPage: React.FC = () => {
     console.log("Signup attempt:", signupData);
     setIsLoading(false);
 
-    // Redirect to appropriate onboarding
     if (signupData.userType === "employer") {
       console.log("Redirecting to employer setup");
     } else {
@@ -170,7 +168,7 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -498,7 +496,8 @@ const AuthPage: React.FC = () => {
         </div>
       </div>
     </div>
+
   );
-};
+}
 
 export default AuthPage;

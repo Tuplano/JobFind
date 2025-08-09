@@ -1,7 +1,7 @@
-// InputField.tsx
 import React from "react";
 import { InputFieldProps } from "@/types/employer";
-const InputField: React.FC<InputFieldProps> = ({
+
+const InputField = ({
   label,
   name,
   type = "text",
@@ -9,7 +9,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange,
   placeholder,
   required = false,
-}) => (
+}: InputFieldProps) => (
   <div>
     <label
       htmlFor={name}

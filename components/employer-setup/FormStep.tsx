@@ -1,10 +1,15 @@
-import React from 'react';
+import { ReactNode } from "react";
 
-const FormStep: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
-    <h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2>
-    {children}
-  </div>
-);
+type FormStepProps = {
+  title: string;
+  children: ReactNode;
+};
 
-export default FormStep;
+export default function FormStep({ title, children }: FormStepProps) {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2>
+      {children}
+    </div>
+  );
+}

@@ -1,14 +1,14 @@
 import React from "react";
 import { SelectFieldProps } from "@/types/employer";
 
-const SelectField: React.FC<SelectFieldProps> = ({
+const SelectField = ({
   label,
   name,
   value,
   onChange,
   options,
   required = false,
-}) => (
+}: SelectFieldProps) => (
   <div>
     <label
       htmlFor={name}

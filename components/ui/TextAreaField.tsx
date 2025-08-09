@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextAreaFieldProps } from '@/types/employer';
-const TextAreaField: React.FC<TextAreaFieldProps> = ({
+
+const TextAreaField = ({
   label,
   name,
   value,
@@ -8,7 +9,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   placeholder,
   rows = 4,
   required = false,
-}) => (
+}: TextAreaFieldProps) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">
       {label} {required && <span className="text-red-500">*</span>}
