@@ -1,5 +1,6 @@
 // app/auth/page.tsx
 "use client";
+import { supabase } from "@/lib/supabase/client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -152,16 +153,15 @@ export default function AuthPage() {
     alert("Check your email for a confirmation link (if required).");
   };
 
-  const handleGoogleLogin = async () => {
-await supabase.auth.signInWithOAuth({
-  provider: "google",
-  options: {
-    redirectTo: `${window.location.origin}/auth/callback`,
-  },
-});
-
-  };
-
+const handleGoogleLogin = async () => {
+   const role = isLogin ? loginData.userType : signupData.userType;
+  await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?role=${role}`,
+    },
+  });
+};
 
   const userTypeOptions = {
     employee: {
