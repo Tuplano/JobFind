@@ -9,7 +9,7 @@ export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const getSessionAndRedirect = async () => {
+    const handleLogin = async () => {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!session) {
@@ -18,28 +18,59 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // Get role from query string
       const role = searchParams.get("role");
-      alert(`Role from query: ${role}`);
+      const userId = session.user.id;
+      const fullName = session.user.user_metadata.full_name || null;
 
-      if (role) {
-        // Store in user metadata for future logins
-        await supabase.auth.updateUser({
-          data: { userType: role },
-        });
+      const { data: profile, error: checkError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-        // Redirect based on role
-        if (role === "employer") router.push("/employer/setup");
-        else if (role === "employee") router.push("/employee/setup");
-        else if (role === "admin") router.push("/admin");
-        else router.push("/");
-      } else {
-        console.warn("No role found in callback URL, sending to home");
-        router.push("/");
+      if (checkError && checkError.code !== "PGRST116") {
+        console.error("Error checking profile:", checkError);
+        return;
       }
+
+      if (!profile) {
+        const { error: insertError } = await supabase.from("profiles").insert([
+          {
+            id: userId,
+            full_name: fullName,
+            role: role,
+            is_setup_complete: false,
+          },
+        ]);
+
+        if (insertError) {
+          console.error("Error creating profile:", insertError);
+          return;
+        }
+
+        if (role === "employer") return router.push("/employer/setup");
+        if (role === "employee") return router.push("/employee/setup");
+      } else {
+        if (profile.role === "employer") {
+          if (!profile.is_setup_complete) return router.push("/employer/setup");
+          return router.push("/employer/dashboard");
+        }
+
+        if (profile.role === "employee") {
+          if (!profile.is_setup_complete) return router.push("/employee/setup");
+          return router.push("/employee/dashboard");
+        }
+
+        if (profile.role === "admin") {
+          return router.push("/admin");
+        }
+      }
+
+      // Fallback
+      router.push("/");
     };
 
-    getSessionAndRedirect();
+    handleLogin();
   }, [router, searchParams]);
 
   return <p>Signing you in...</p>;
