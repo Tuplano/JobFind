@@ -21,6 +21,7 @@ export default function AuthCallbackPage() {
       const role = searchParams.get("role");
       const userId = session.user.id;
       const fullName = session.user.user_metadata.full_name || null;
+      const email = session.user.email;
 
       const { data: profile, error: checkError } = await supabase
         .from("profiles")
@@ -38,7 +39,9 @@ export default function AuthCallbackPage() {
           {
             id: userId,
             full_name: fullName,
+            email: email,
             role: role,
+            terms_accepted: true, 
             is_setup_complete: false,
           },
         ]);

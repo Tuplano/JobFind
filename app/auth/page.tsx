@@ -1,6 +1,9 @@
 // app/auth/page.tsx
 "use client";
 import { supabase } from "@/lib/supabase/client";
+   import { toast } from "sonner";
+
+import { Toaster } from "sonner";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -70,25 +73,57 @@ export default function AuthPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateSignup = () => {
-    const newErrors: { [k: string]: string } = {};
-    if (!signupData.firstName) newErrors.firstName = "First name is required";
-    if (!signupData.lastName) newErrors.lastName = "Last name is required";
-    if (!signupData.email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(signupData.email))
-      newErrors.email = "Email is invalid";
-    if (!signupData.password) newErrors.password = "Password is required";
-    else if (signupData.password.length < 8)
-      newErrors.password = "Password must be at least 8 characters";
-    if (signupData.password !== signupData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-    if (signupData.userType === "employer" && !signupData.companyName)
-      newErrors.companyName = "Company name is required for employers";
-    if (!signupData.termsAccepted)
-      newErrors.termsAccepted = "You must accept the terms";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+
+// ✅ Signup validation
+const validateSignup = () => {
+  const newErrors: { [key: string]: string } = {};
+
+  // --- Basic info ---
+  if (!signupData.firstName) newErrors.firstName = "First name is required";
+  if (!signupData.lastName) newErrors.lastName = "Last name is required";
+
+  // --- Employer specific ---
+  if (signupData.userType === "employer" && !signupData.companyName) {
+    newErrors.companyName = "Company name is required for employers";
+  }
+
+  // --- Email ---
+  if (!signupData.email) {
+    newErrors.email = "Email is required";
+  } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
+    newErrors.email = "Email is invalid";
+  }
+
+  // --- Password ---
+  if (!signupData.password) {
+    newErrors.password = "Password is required";
+  } else if (signupData.password.length < 6) {
+    newErrors.password = "Password must be at least 6 characters long";
+  }
+
+  // --- Confirm Password ---
+  if (!signupData.confirmPassword) {
+    newErrors.confirmPassword = "Please confirm your password";
+  } else if (signupData.password !== signupData.confirmPassword) {
+    newErrors.confirmPassword = "Passwords do not match";
+  }
+
+  // --- Terms ---
+  if (!signupData.termsAccepted) {
+    newErrors.termsAccepted = "You must accept the terms";
+  }
+
+  setErrors(newErrors);
+
+  if (Object.keys(newErrors).length > 0) {
+    toast.error(Object.values(newErrors)[0]);
+    return false;
+  }
+
+  return true;
+};
+
+
 
   // Redirect helper
   const redirectByRole = (role?: string) => {
@@ -115,43 +150,72 @@ export default function AuthPage() {
       return;
     }
 
-    // get user and redirect by metadata
     const { data: userData } = await supabase.auth.getUser();
     const userType = (userData?.user?.user_metadata as any)?.userType;
     redirectByRole(userType);
   };
 
   // SIGNUP (email/password)
-  const handleSignup = async () => {
-    if (!validateSignup()) return;
-    setIsLoading(true);
-    const { email, password, firstName, lastName, userType, companyName } =
-      signupData;
+const handleSignup = async () => {
+  if (!validateSignup()) return;
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        // `data` becomes user_metadata/raw_user_meta_data in Auth
-        data: {
-          firstName,
-          lastName,
-          userType,
-          companyName: userType === "employer" ? companyName || "" : "",
-        },
-        // after email confirmation it will redirect here
+  setIsLoading(true);
+
+  const { email, password, firstName, lastName, userType, companyName, termsAccepted } = signupData;
+
+  // 1️⃣ Create user in Supabase Auth
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        firstName,
+        lastName,
+        userType,
+        companyName: userType === "employer" ? companyName || "" : "",
+        termsAccepted,
       },
-    });
+    },
+  });
 
-    setIsLoading(false);
+  setIsLoading(false);
 
-    if (error) {
-      setErrors({ general: error.message });
-      return;
-    }
+  if (error) {
+    setErrors({ general: error.message });
+    toast.error(error.message);
+    return;
+  }
 
-    alert("Check your email for a confirmation link (if required).");
-  };
+  const user = data?.user;
+  if (!user) {
+    toast.error("No user returned after signup.");
+    return;
+  }
+
+  // 2️⃣ Insert into profiles table
+  const fullName = `${firstName} ${lastName}`;
+  const { error: insertError } = await supabase.from("profiles").insert([
+    {
+      id: user.id, 
+      full_name: fullName,
+      email: email,
+      role: userType, 
+      company_name: userType === "employer" ? companyName || "" : "",
+      terms_accepted: termsAccepted,
+      is_setup_complete: false,
+    },
+  ]);
+
+  if (insertError) {
+    console.error("Error creating profile:", insertError.message);
+    toast.error("Failed to create profile.");
+    return;
+  }
+
+  console.log("✅ Signup + profile created:", signupData);
+  toast.success("Check your email for a confirmation link!");
+};
+
 
 const handleGoogleLogin = async () => {
    const role = isLogin ? loginData.userType : signupData.userType;
@@ -177,7 +241,9 @@ const handleGoogleLogin = async () => {
   };
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+              <Toaster position="top-right" />
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-4">
