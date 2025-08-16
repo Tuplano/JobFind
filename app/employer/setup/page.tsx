@@ -13,10 +13,11 @@ import { EmployerSetupData } from "@/types/employer";
 import {
   INDUSTRY_OPTIONS,
   COMPANY_SIZE_OPTIONS,
+  STEPS,
 } from "@/Constants/Employer";
 
-import StepIndicator from "@/components/employer-setup/StepIndicator";
-import FormStep from "@/components/employer-setup/FormStep";
+import StepIndicator from "@/components/setup/StepIndicator";
+import FormStep from "@/components/setup/FormStep";
 import InputField from "@/components/ui/InputField";
 import SelectField from "@/components/ui/SelectField";
 import TextAreaField from "@/components/ui/TextAreaField";
@@ -24,26 +25,7 @@ import LogoUpload from "@/components/employer-setup/LogoUpload";
 
 import { toast } from "sonner";
 
-const STEPS = [
-  {
-    id: 1,
-    title: "Company Information",
-    description: "Basic details about your company",
-    icon: <Building2 size={24} />,
-  },
-  {
-    id: 2,
-    title: "Contact Details",
-    description: "How candidates can reach you",
-    icon: <MapPin size={24} />,
-  },
-  {
-    id: 3,
-    title: "Company Logo",
-    description: "Upload your brand identity",
-    icon: <Upload size={24} />,
-  },
-];
+
 
 export default function EmployerSetupPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -141,7 +123,11 @@ export default function EmployerSetupPage() {
   const canProceed = validateStep(currentStep);
   const isLastStep = currentStep === STEPS.length;
 
-
+  const ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
+  Building2,
+  MapPin,
+  Upload,
+};
 
   
   return (
@@ -165,16 +151,19 @@ export default function EmployerSetupPage() {
               <h2 className="text-lg font-semibold text-gray-800 mb-4">
                 Setup Progress
               </h2>
-              {STEPS.map((step) => (
-                <StepIndicator
-                  key={step.id}
-                  title={step.title}
-                  description={step.description}
-                  icon={step.icon}
-                  isCompleted={completedSteps.includes(step.id)}
-                  isActive={currentStep === step.id}
-                />
-              ))}
+              {STEPS.map((step) => {
+                const IconComponent = ICONS[step.icon]; 
+                return (
+                  <StepIndicator
+                    key={step.id}
+                    title={step.title}
+                    description={step.description}
+                    icon={<IconComponent size={24} />} 
+                    isCompleted={completedSteps.includes(step.id)}
+                    isActive={currentStep === step.id}
+                  />
+                );
+              })}
 
               {/* Progress Bar */}
               <div className="mt-8 p-4 bg-blue-50 rounded-lg">

@@ -18,12 +18,12 @@ export const COMPANY_SIZE_OPTIONS = [
   { value: '1000+', label: '1000+ employees' },
 ];
 
-export const EMPLOYER_SETUP_STEPS = [
+export const STEPS = [
   {
     id: 1,
     title: 'Company Information',
     description: 'Basic details about your company',
-    icon: 'Building2', // reference by name, or store actual icon JSX in the page file
+    icon: 'Building2',
   },
   {
     id: 2,
