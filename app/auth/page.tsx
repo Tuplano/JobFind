@@ -1,7 +1,6 @@
-// app/auth/page.tsx
 "use client";
 import { supabase } from "@/lib/supabase/client";
-   import { toast } from "sonner";
+import { toast } from "sonner";
 
 import { Toaster } from "sonner";
 import React, { useState } from "react";
@@ -73,57 +72,54 @@ export default function AuthPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ✅ Signup validation
+  const validateSignup = () => {
+    const newErrors: { [key: string]: string } = {};
 
-// ✅ Signup validation
-const validateSignup = () => {
-  const newErrors: { [key: string]: string } = {};
+    // --- Basic info ---
+    if (!signupData.firstName) newErrors.firstName = "First name is required";
+    if (!signupData.lastName) newErrors.lastName = "Last name is required";
 
-  // --- Basic info ---
-  if (!signupData.firstName) newErrors.firstName = "First name is required";
-  if (!signupData.lastName) newErrors.lastName = "Last name is required";
+    // --- Employer specific ---
+    if (signupData.userType === "employer" && !signupData.companyName) {
+      newErrors.companyName = "Company name is required for employers";
+    }
 
-  // --- Employer specific ---
-  if (signupData.userType === "employer" && !signupData.companyName) {
-    newErrors.companyName = "Company name is required for employers";
-  }
+    // --- Email ---
+    if (!signupData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
+      newErrors.email = "Email is invalid";
+    }
 
-  // --- Email ---
-  if (!signupData.email) {
-    newErrors.email = "Email is required";
-  } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-    newErrors.email = "Email is invalid";
-  }
+    // --- Password ---
+    if (!signupData.password) {
+      newErrors.password = "Password is required";
+    } else if (signupData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+    }
 
-  // --- Password ---
-  if (!signupData.password) {
-    newErrors.password = "Password is required";
-  } else if (signupData.password.length < 6) {
-    newErrors.password = "Password must be at least 6 characters long";
-  }
+    // --- Confirm Password ---
+    if (!signupData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (signupData.password !== signupData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
 
-  // --- Confirm Password ---
-  if (!signupData.confirmPassword) {
-    newErrors.confirmPassword = "Please confirm your password";
-  } else if (signupData.password !== signupData.confirmPassword) {
-    newErrors.confirmPassword = "Passwords do not match";
-  }
+    // --- Terms ---
+    if (!signupData.termsAccepted) {
+      newErrors.termsAccepted = "You must accept the terms";
+    }
 
-  // --- Terms ---
-  if (!signupData.termsAccepted) {
-    newErrors.termsAccepted = "You must accept the terms";
-  }
+    setErrors(newErrors);
 
-  setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error(Object.values(newErrors)[0]);
+      return false;
+    }
 
-  if (Object.keys(newErrors).length > 0) {
-    toast.error(Object.values(newErrors)[0]);
-    return false;
-  }
-
-  return true;
-};
-
-
+    return true;
+  };
 
   // Redirect helper
   const redirectByRole = (role?: string) => {
@@ -132,11 +128,11 @@ const validateSignup = () => {
     else if (role === "admin") router.push("/admin");
     else router.push("/");
   };
-
   // LOGIN
   const handleLogin = async () => {
     if (!validateLogin()) return;
     setIsLoading(true);
+
     const { email, password } = loginData;
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -150,82 +146,127 @@ const validateSignup = () => {
       return;
     }
 
-    const { data: userData } = await supabase.auth.getUser();
-    const userType = (userData?.user?.user_metadata as any)?.userType;
-    redirectByRole(userType);
+    // ✅ Get user safely
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData?.user) {
+      setErrors({ general: "Failed to retrieve user info." });
+      return;
+    }
+    const user = userData.user;
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      setErrors({ general: "Failed to retrieve user profile." });
+      return;
+    }
+
+    const userRole = profile.role;
+    redirectByRole(userRole);
   };
 
   // SIGNUP (email/password)
-const handleSignup = async () => {
-  if (!validateSignup()) return;
+  const handleSignup = async () => {
+    if (!validateSignup()) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  const { email, password, firstName, lastName, userType, companyName, termsAccepted } = signupData;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      userType,
+      companyName,
+      termsAccepted,
+    } = signupData;
 
-  // 1️⃣ Create user in Supabase Auth
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        firstName,
-        lastName,
-        userType,
-        companyName: userType === "employer" ? companyName || "" : "",
-        termsAccepted,
+    // 1️⃣ Create user in Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          firstName,
+          lastName,
+          userType,
+          companyName: userType === "employer" ? companyName || "" : "",
+          termsAccepted,
+        },
       },
-    },
-  });
+    });
 
-  setIsLoading(false);
+    setIsLoading(false);
 
-  if (error) {
-    setErrors({ general: error.message });
-    toast.error(error.message);
-    return;
-  }
+    if (error) {
+      setErrors({ general: error.message });
+      toast.error(error.message);
+      return;
+    }
 
-  const user = data?.user;
-  if (!user) {
-    toast.error("No user returned after signup.");
-    return;
-  }
+    const user = data?.user;
+    if (!user) {
+      toast.error("No user returned after signup.");
+      return;
+    }
 
-  // 2️⃣ Insert into profiles table
-  const fullName = `${firstName} ${lastName}`;
-  const { error: insertError } = await supabase.from("profiles").insert([
-    {
-      id: user.id, 
-      full_name: fullName,
-      email: email,
-      role: userType, 
-      company_name: userType === "employer" ? companyName || "" : "",
-      terms_accepted: termsAccepted,
-      is_setup_complete: false,
-    },
-  ]);
+    const fullName = `${firstName} ${lastName}`;
+    const { error: insertError } = await supabase.from("profiles").insert([
+      {
+        id: user.id,
+        full_name: fullName,
+        email: email,
+        role: userType,
+        company_name: userType === "employer" ? companyName || "" : "",
+        terms_accepted: termsAccepted,
+        is_setup_complete: false,
+      },
+    ]);
 
-  if (insertError) {
-    console.error("Error creating profile:", insertError.message);
-    toast.error("Failed to create profile.");
-    return;
-  }
+    if (insertError) {
+      console.error("Error creating profile:", insertError.message);
+      toast.error("Failed to create profile.");
+      return;
+    }
 
-  console.log("✅ Signup + profile created:", signupData);
-  toast.success("Check your email for a confirmation link!");
-};
+    console.log("✅ Signup + profile created:", signupData);
+    toast.success("Check your email for a confirmation link!");
+  };
 
+  const handleGoogleLogin = async () => {
+    const role = isLogin ? loginData.userType : signupData.userType;
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?role=${role}`,
+      },
+    });
+  };
 
-const handleGoogleLogin = async () => {
-   const role = isLogin ? loginData.userType : signupData.userType;
-  await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback?role=${role}`,
-    },
-  });
-};
+  // FORGOT PASSWORD
+  const handleForgotPassword = async () => {
+    if (!loginData.email) {
+      toast.error("Please enter your email first");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      loginData.email,
+      {
+        redirectTo: `${window.location.origin}/auth/reset`,
+      }
+    );
+
+    if (error) {
+      console.error("Forgot password error:", error.message);
+      toast.error(error.message);
+    } else {
+      toast.success("Password reset link sent! Check your email.");
+    }
+  };
 
   const userTypeOptions = {
     employee: {
@@ -241,9 +282,8 @@ const handleGoogleLogin = async () => {
   };
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-              <Toaster position="top-right" />
+      <Toaster position="top-right" />
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-4">
@@ -292,7 +332,7 @@ const handleGoogleLogin = async () => {
           <h3 className="text-lg font-medium text-gray-900 text-center">
             I am a...
           </h3>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             {Object.entries(userTypeOptions).map(([type, config]) => (
               <UserTypeCard
                 key={type}
@@ -363,7 +403,11 @@ const handleGoogleLogin = async () => {
                     Remember me
                   </span>
                 </label>
-                <button className="text-sm text-blue-600 hover:text-blue-800">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
                   Forgot password?
                 </button>
               </div>
