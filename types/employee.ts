@@ -1,9 +1,13 @@
-export interface  EmployeeSetupData  {
+export interface EmployeeSetupData {
   personalInfo: {
     fullName: string;
     email: string;
     phone: string;
-    location: string;
+    city: string;
+    country: string;
+    dateOfBirth: string;
+    linkedin: string;
+    portfolio: string;
   };
   professionalInfo: {
     title: string;
@@ -12,4 +16,4 @@ export interface  EmployeeSetupData  {
     skills: string;
   };
   resume: File | null;
-};
+}

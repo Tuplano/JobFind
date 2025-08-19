@@ -1,53 +1,64 @@
-import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request });
 
-const protectedRoutes = ["/employee", "/employer", "/admin"];
-
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-    const accessToken = req.cookies.get("sb-access-token")?.value;
-    if (!accessToken) {
-      return NextResponse.redirect(new URL("/auth", req.url));
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
     }
+  );
 
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(accessToken);
-    if (error || !user) {
-      return NextResponse.redirect(new URL("/auth", req.url));
-    }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile) {
-      return NextResponse.redirect(new URL("/auth", req.url));
-    }
-
-    if (pathname.startsWith("/admin") && profile.role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-    if (pathname.startsWith("/employer") && profile.role !== "employer") {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-    if (pathname.startsWith("/employee") && profile.role !== "employee") {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
+  if (!user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth";
+    return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id) 
+    .single();
+
+  if (!profile) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth"; 
+    return NextResponse.redirect(url);
+  }
+
+  const role = profile.role; 
+  const path = request.nextUrl.pathname;
+
+  if (role === "employee" && !path.startsWith("/employee")) {
+    return NextResponse.redirect(new URL("/employee", request.url));
+  }
+
+  if (role === "employer" && !path.startsWith("/employer")) {
+    return NextResponse.redirect(new URL("/employer", request.url));
+  }
+
+  if (role === "admin" && !path.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  return response;
 }
 
 export const config = {

@@ -18,7 +18,11 @@ import InputField from "@/components/ui/InputField";
 import SelectField from "@/components/ui/SelectField";
 import TextAreaField from "@/components/ui/TextAreaField";
 import FileUpload from "@/components/setup/FileUpload";
-import { EXPERIENCE_OPTIONS, STEPS } from "@/Constants/Employee";
+import {
+  EXPERIENCE_OPTIONS,
+  STEPS,
+  COUNTRY_OPTIONS,
+} from "@/Constants/Employee";
 
 import { EmployeeSetupData } from "@/types/employee";
 
@@ -29,7 +33,11 @@ export default function EmployeeSetupPage() {
       fullName: "",
       email: "",
       phone: "",
-      location: "",
+      city: "",
+      country: "",
+      dateOfBirth: "",
+      linkedin: "",
+      portfolio: "",
     },
     professionalInfo: {
       title: "",
@@ -43,13 +51,45 @@ export default function EmployeeSetupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handlers
-  const handlePersonalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
+const handlePersonalChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+
+  setFormData((prev) => {
+    if (name === "country") {
+      const selectedCountry = COUNTRY_OPTIONS.find(
+        (c) => c.value === value
+      );
+      const dialCode = selectedCountry?.dialCode || "";
+
+      const currentPhone = prev.personalInfo.phone;
+      const oldCountry = COUNTRY_OPTIONS.find(
+        (c) => c.value === prev.personalInfo.country
+      );
+      const oldDialCode = oldCountry?.dialCode || "";
+
+      let numberPart = currentPhone.startsWith(oldDialCode)
+        ? currentPhone.slice(oldDialCode.length)
+        : currentPhone;
+
+      return {
+        ...prev,
+        personalInfo: {
+          ...prev.personalInfo,
+          country: value,
+          phone: dialCode + numberPart,
+        },
+      };
+    }
+
+    return {
       ...prev,
       personalInfo: { ...prev.personalInfo, [name]: value },
-    }));
-  };
+    };
+  });
+};
+
 
   const handleProfessionalChange = (
     e: React.ChangeEvent<
@@ -63,11 +103,9 @@ export default function EmployeeSetupPage() {
     }));
   };
 
-const handleResumeUpload = (file: File | null) => {
-  setFormData((prev) => ({ ...prev, resume: file }));
-};
-
-
+  const handleResumeUpload = (file: File | null) => {
+    setFormData((prev) => ({ ...prev, resume: file }));
+  };
 
   const validateStep = (step: number): boolean => {
     switch (step) {
@@ -75,7 +113,10 @@ const handleResumeUpload = (file: File | null) => {
         return Boolean(
           formData.personalInfo.fullName &&
             formData.personalInfo.email &&
-            formData.personalInfo.location
+            formData.personalInfo.city &&
+            formData.personalInfo.country &&
+            formData.personalInfo.dateOfBirth &&
+            formData.personalInfo.dateOfBirth
         );
       case 2:
         return Boolean(
@@ -205,13 +246,52 @@ const handleResumeUpload = (file: File | null) => {
                     type="tel"
                     value={formData.personalInfo.phone}
                     onChange={handlePersonalChange}
+                    required
                   />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <InputField
+                      label="City"
+                      name="city"
+                      value={formData.personalInfo.city}
+                      onChange={handlePersonalChange}
+                      placeholder="e.g. Manila"
+                      required
+                    />
+
+                    <SelectField
+                      label="Country"
+                      name="country"
+                      value={formData.personalInfo.country}
+                      onChange={handlePersonalChange}
+                      options={COUNTRY_OPTIONS}
+                      required
+                    />
+                  </div>
+
                   <InputField
-                    label="Location"
-                    name="location"
-                    value={formData.personalInfo.location}
+                    label="Date of Birth"
+                    name="dateOfBirth"
+                    type="date"
+                    value={formData.personalInfo.dateOfBirth}
                     onChange={handlePersonalChange}
                     required
+                  />
+                  <InputField
+                    label="LinkedIn"
+                    name="linkedin"
+                    type="url"
+                    placeholder="https://linkedin.com/in/..."
+                    value={formData.personalInfo.linkedin}
+                    onChange={handlePersonalChange}
+                  />
+                  <InputField
+                    label="Portfolio"
+                    name="portfolio"
+                    type="url"
+                    placeholder="https://myportfolio.com"
+                    value={formData.personalInfo.portfolio}
+                    onChange={handlePersonalChange}
                   />
                 </div>
               </FormStep>
@@ -254,7 +334,10 @@ const handleResumeUpload = (file: File | null) => {
 
             {currentStep === 3 && (
               <FormStep title="Step 3: Resume Upload">
-              <FileUpload file={formData.resume} onChange={handleResumeUpload} />
+                <FileUpload
+                  file={formData.resume}
+                  onChange={handleResumeUpload}
+                />
               </FormStep>
             )}
 

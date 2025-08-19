@@ -21,7 +21,7 @@ import FormStep from "@/components/setup/FormStep";
 import InputField from "@/components/ui/InputField";
 import SelectField from "@/components/ui/SelectField";
 import TextAreaField from "@/components/ui/TextAreaField";
-import LogoUpload from "@/components/employer-setup/LogoUpload";
+import LogoUpload from "@/components/setup/LogoUpload";
 
 import { toast } from "sonner";
 

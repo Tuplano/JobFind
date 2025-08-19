@@ -1,3 +1,5 @@
+import countries from "world-countries";
+
 export const EXPERIENCE_OPTIONS = [
   { label: "0-1 years", value: "0-1" },
   { label: "1-3 years", value: "1-3" },
@@ -24,3 +26,12 @@ export const STEPS = [
     icon: 'Upload',
   },
 ];
+
+
+export const COUNTRY_OPTIONS = countries.map((country) => ({
+  value: country.cca2, 
+  label: country.name.common, 
+  dialCode: country.idd?.root
+    ? `${country.idd.root}${country.idd.suffixes?.[0] || ""}`
+    : "", 
+}));

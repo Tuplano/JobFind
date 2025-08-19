@@ -1,5 +1,5 @@
 import React from "react";
-import { InputFieldProps } from "@/types/employer";
+import { InputFieldProps } from "@/types/all";
 
 const InputField = ({
   label,
@@ -8,6 +8,7 @@ const InputField = ({
   value,
   onChange,
   placeholder,
+  pattern,
   required = false,
 }: InputFieldProps) => (
   <div>
@@ -24,6 +25,7 @@ const InputField = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      pattern={pattern}
       required={required}
       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
     />
