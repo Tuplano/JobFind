@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextAreaFieldProps } from '@/types/employer';
+import { TextAreaFieldProps } from '@/types/all';
 
 const TextAreaField = ({
   label,
@@ -22,7 +22,7 @@ const TextAreaField = ({
       placeholder={placeholder}
       rows={rows}
       required={required}
-      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 resize-vertical"
+      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#76944C] focus:border-transparent transition duration-200 resize-vertical"
     />
   </div>
 );

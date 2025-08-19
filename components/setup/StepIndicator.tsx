@@ -1,12 +1,11 @@
 import { Check } from 'lucide-react';
-import { StepProps } from '@/types/employer';
-
-function StepIndicator({ title, description, icon, isCompleted, isActive }: StepProps) {
+import { StepIndicatorProps } from '@/types/all';
+function StepIndicator({ title, description, icon, isCompleted, isActive }: StepIndicatorProps) {
   return (
     <div
       className={`flex items-center space-x-4 p-4 rounded-lg transition-all duration-200 ${
         isActive
-          ? 'bg-blue-50 border-2 border-blue-200'
+          ? 'bg-green-50 border-2 border-green-500'
           : 'bg-white border-2 border-gray-200'
       }`}
     >
@@ -15,7 +14,7 @@ function StepIndicator({ title, description, icon, isCompleted, isActive }: Step
           isCompleted
             ? 'bg-green-500 text-white'
             : isActive
-            ? 'bg-blue-500 text-white'
+            ? 'bg-green-500 text-white'
             : 'bg-gray-200 text-gray-400'
         }`}
       >
@@ -24,7 +23,7 @@ function StepIndicator({ title, description, icon, isCompleted, isActive }: Step
       <div className="flex-grow">
         <h3
           className={`font-semibold ${
-            isActive ? 'text-blue-900' : 'text-gray-700'
+            isActive ? 'text-[#76944C]' : 'text-gray-700'
           }`}
         >
           {title}

@@ -1,6 +1,5 @@
 import React from "react";
-import { SelectFieldProps } from "@/types/employer";
-
+import { SelectFieldProps } from "@/types/all";
 const SelectField = ({
   label,
   name,
@@ -22,7 +21,7 @@ const SelectField = ({
       value={value}
       onChange={onChange}
       required={required}
-      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#76944C] focus:border-transparent transition duration-200"
     >
       <option value="">Select {label.toLowerCase()}</option>
       {options.map((option) => (

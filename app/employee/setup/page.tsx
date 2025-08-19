@@ -22,6 +22,7 @@ import {
   EXPERIENCE_OPTIONS,
   STEPS,
   COUNTRY_OPTIONS,
+  DEGREE_OPTIONS,
 } from "@/Constants/Employee";
 
 import { EmployeeSetupData } from "@/types/employee";
@@ -42,8 +43,14 @@ export default function EmployeeSetupPage() {
     professionalInfo: {
       title: "",
       experience: "",
-      education: "",
-      skills: "",
+      company: "",
+      skills: ""
+    },
+    educationInfo: {
+      degree: "",
+      school: "",
+      graduationYear: "",
+      gpa: ""
     },
     resume: null,
   });
@@ -103,6 +110,20 @@ const handlePersonalChange = (
     }));
   };
 
+    const handleEducationChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      educationInfo: { ...prev.educationInfo, [name]: value }
+    }));
+  };
+
+
+
   const handleResumeUpload = (file: File | null) => {
     setFormData((prev) => ({ ...prev, resume: file }));
   };
@@ -112,19 +133,23 @@ const handlePersonalChange = (
       case 1:
         return Boolean(
           formData.personalInfo.fullName &&
-            formData.personalInfo.email &&
-            formData.personalInfo.city &&
-            formData.personalInfo.country &&
-            formData.personalInfo.dateOfBirth &&
-            formData.personalInfo.dateOfBirth
+          formData.personalInfo.email &&
+          formData.personalInfo.city &&
+          formData.personalInfo.country &&
+          formData.personalInfo.dateOfBirth
         );
       case 2:
         return Boolean(
           formData.professionalInfo.title &&
-            formData.professionalInfo.experience &&
-            formData.professionalInfo.skills
+          formData.professionalInfo.experience &&
+          formData.professionalInfo.skills
         );
       case 3:
+        return Boolean(
+          formData.educationInfo.degree &&
+          formData.educationInfo.school
+        );
+      case 4:
         return Boolean(formData.resume);
       default:
         return false;
@@ -161,17 +186,21 @@ const handlePersonalChange = (
     User,
     Briefcase,
     Upload,
+    GraduationCap,
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#FBF5DB] via-[#C8DAA6]/20 to-[#FBF5DB] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#FFD21F] to-[#FFD21F]/80 rounded-2xl mb-6 shadow-xl">
+            <User className="w-10 h-10 text-[#76944C]" />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#76944C] to-[#76944C]/80 bg-clip-text text-transparent mb-4">
             Set Up Your Profile
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-[#C0B6AC] max-w-2xl mx-auto text-lg">
             Complete your profile to start applying for jobs and showcase your
             skills to potential employers.
           </p>
@@ -181,7 +210,7 @@ const handlePersonalChange = (
           {/* Step Indicators */}
           <div className="lg:col-span-1">
             <div className="sticky top-8 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              <h2 className="text-xl font-bold text-[#76944C] mb-6">
                 Setup Progress
               </h2>
               {STEPS.map((step) => {
@@ -199,18 +228,18 @@ const handlePersonalChange = (
               })}
 
               {/* Progress Bar */}
-              <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-blue-900">
+              <div className="mt-8 p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-semibold text-[#76944C]">
                     Overall Progress
                   </span>
-                  <span className="text-sm font-semibold text-blue-900">
+                  <span className="text-lg font-bold text-[#76944C]">
                     {Math.round((completedSteps.length / STEPS.length) * 100)}%
                   </span>
                 </div>
-                <div className="w-full bg-blue-200 rounded-full h-2">
+                <div className="w-full bg-[#C8DAA6]/30 rounded-full h-3 overflow-hidden">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-[#FFD21F] to-[#FFD21F]/80 h-3 rounded-full transition-all duration-500 ease-out shadow-sm"
                     style={{
                       width: `${(completedSteps.length / STEPS.length) * 100}%`,
                     }}
@@ -240,6 +269,25 @@ const handlePersonalChange = (
                     onChange={handlePersonalChange}
                     required
                   />
+                  
+                  <InputField
+                    label="City"
+                    name="city"
+                    value={formData.personalInfo.city}
+                    onChange={handlePersonalChange}
+                    placeholder="e.g. Manila"
+                    required
+                  />
+
+                  <SelectField
+                    label="Country"
+                    name="country"
+                    value={formData.personalInfo.country}
+                    onChange={handlePersonalChange}
+                    options={COUNTRY_OPTIONS}
+                    required
+                  />
+                  
                   <InputField
                     label="Phone"
                     name="phone"
@@ -248,26 +296,6 @@ const handlePersonalChange = (
                     onChange={handlePersonalChange}
                     required
                   />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputField
-                      label="City"
-                      name="city"
-                      value={formData.personalInfo.city}
-                      onChange={handlePersonalChange}
-                      placeholder="e.g. Manila"
-                      required
-                    />
-
-                    <SelectField
-                      label="Country"
-                      name="country"
-                      value={formData.personalInfo.country}
-                      onChange={handlePersonalChange}
-                      options={COUNTRY_OPTIONS}
-                      required
-                    />
-                  </div>
 
                   <InputField
                     label="Date of Birth"
@@ -299,41 +327,90 @@ const handlePersonalChange = (
 
             {currentStep === 2 && (
               <FormStep title="Step 2: Professional Information">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <InputField
+                      label="Current Job Title"
+                      name="title"
+                      value={formData.professionalInfo.title}
+                      onChange={handleProfessionalChange}
+                      required
+                      placeholder="e.g. Software Developer"
+                    />
+                    <SelectField
+                      label="Years of Experience"
+                      name="experience"
+                      value={formData.professionalInfo.experience}
+                      onChange={handleProfessionalChange}
+                      options={EXPERIENCE_OPTIONS}
+                      required
+                    />
+                  </div>
+                  
                   <InputField
-                    label="Job Title"
-                    name="title"
-                    value={formData.professionalInfo.title}
+                    label="Current/Previous Company"
+                    name="company"
+                    value={formData.professionalInfo.company}
                     onChange={handleProfessionalChange}
-                    required
+                    placeholder="Company name"
                   />
-                  <SelectField
-                    label="Experience"
-                    name="experience"
-                    value={formData.professionalInfo.experience}
-                    onChange={handleProfessionalChange}
-                    options={EXPERIENCE_OPTIONS}
-                    required
-                  />
-                  <InputField
-                    label="Education"
-                    name="education"
-                    value={formData.professionalInfo.education}
-                    onChange={handleProfessionalChange}
-                  />
+                  
                   <TextAreaField
-                    label="Skills"
+                    label="Key Skills"
                     name="skills"
                     value={formData.professionalInfo.skills}
                     onChange={handleProfessionalChange}
                     required
+                    placeholder="List your key skills, technologies, and competencies..."
                   />
                 </div>
               </FormStep>
             )}
 
             {currentStep === 3 && (
-              <FormStep title="Step 3: Resume Upload">
+              <FormStep title="Step 3: Education Information">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <SelectField
+                      label="Highest Degree"
+                      name="degree"
+                      value={formData.educationInfo.degree}
+                      onChange={handleEducationChange}
+                      options={DEGREE_OPTIONS}
+                      required
+                    />
+                    <InputField
+                      label="Graduation Year"
+                      name="graduationYear"
+                      type="number"
+                      value={formData.educationInfo.graduationYear}
+                      onChange={handleEducationChange}
+                      placeholder="e.g. 2020"
+                    />
+                  </div>
+                  
+                  <InputField
+                    label="School/University"
+                    name="school"
+                    value={formData.educationInfo.school}
+                    onChange={handleEducationChange}
+                    required
+                    placeholder="Institution name"
+                  />
+                  
+                  <InputField
+                    label="GPA (Optional)"
+                    name="gpa"
+                    value={formData.educationInfo.gpa}
+                    onChange={handleEducationChange}
+                    placeholder="e.g. 3.5"
+                  />
+                </div>
+              </FormStep>
+            )}
+
+            {currentStep === 4 && (
+              <FormStep title="Step 4: Resume Upload">
                 <FileUpload
                   file={formData.resume}
                   onChange={handleResumeUpload}
@@ -346,13 +423,13 @@ const handlePersonalChange = (
               <button
                 onClick={prevStep}
                 disabled={currentStep === 1}
-                className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+                className="flex items-center space-x-3 px-8 py-4 bg-white/80 backdrop-blur-sm text-[#76944C] rounded-2xl hover:bg-white hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 border border-[#C8DAA6]/30 font-semibold"
               >
                 <ChevronLeft size={20} />
                 <span>Previous</span>
               </button>
 
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-[#C0B6AC] bg-white/40 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
                 Step {currentStep} of {STEPS.length}
               </span>
 
@@ -360,7 +437,7 @@ const handlePersonalChange = (
                 <button
                   onClick={nextStep}
                   disabled={!canProceed}
-                  className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition duration-200"
+                  className="flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-[#76944C] to-[#76944C]/90 text-white rounded-2xl hover:shadow-xl disabled:from-[#C0B6AC] disabled:to-[#C0B6AC] disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 font-semibold"
                 >
                   <span>Next</span>
                   <ChevronRight size={20} />
@@ -368,12 +445,12 @@ const handlePersonalChange = (
               ) : (
                 <button
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="flex items-center space-x-2 px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition duration-200 min-w-[140px] justify-center"
+                  disabled={!canProceed || isSubmitting}
+                  className="flex items-center space-x-3 px-10 py-4 bg-gradient-to-r from-[#FFD21F] to-[#FFD21F]/80 text-[#76944C] rounded-2xl hover:shadow-xl disabled:opacity-50 transition-all duration-300 transform hover:scale-105 min-w-[160px] justify-center font-bold"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#76944C]"></div>
                       <span>Setting up...</span>
                     </>
                   ) : (
