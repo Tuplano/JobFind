@@ -39,18 +39,21 @@ export default function EmployeeSetupPage() {
       dateOfBirth: "",
       linkedin: "",
       portfolio: "",
+      about: "",
     },
-    professionalInfo: {
-      title: "",
-      experience: "",
-      company: "",
-      skills: ""
-    },
+    professionalInfo: [
+      {
+        title: "",
+        experience: "",
+        company: "",
+        skills: "",
+      },
+    ],
     educationInfo: {
       degree: "",
       school: "",
       graduationYear: "",
-      gpa: ""
+      gpa: "",
     },
     resume: null,
   });
@@ -58,59 +61,74 @@ export default function EmployeeSetupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handlers
-const handlePersonalChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-) => {
-  const { name, value } = e.target;
+  const handlePersonalChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
 
-  setFormData((prev) => {
-    if (name === "country") {
-      const selectedCountry = COUNTRY_OPTIONS.find(
-        (c) => c.value === value
-      );
-      const dialCode = selectedCountry?.dialCode || "";
+    setFormData((prev) => {
+      if (name === "country") {
+        const selectedCountry = COUNTRY_OPTIONS.find((c) => c.value === value);
+        const dialCode = selectedCountry?.dialCode || "";
 
-      const currentPhone = prev.personalInfo.phone;
-      const oldCountry = COUNTRY_OPTIONS.find(
-        (c) => c.value === prev.personalInfo.country
-      );
-      const oldDialCode = oldCountry?.dialCode || "";
+        const currentPhone = prev.personalInfo.phone;
+        const oldCountry = COUNTRY_OPTIONS.find(
+          (c) => c.value === prev.personalInfo.country
+        );
+        const oldDialCode = oldCountry?.dialCode || "";
 
-      let numberPart = currentPhone.startsWith(oldDialCode)
-        ? currentPhone.slice(oldDialCode.length)
-        : currentPhone;
+        let numberPart = currentPhone.startsWith(oldDialCode)
+          ? currentPhone.slice(oldDialCode.length)
+          : currentPhone;
+
+        return {
+          ...prev,
+          personalInfo: {
+            ...prev.personalInfo,
+            country: value,
+            phone: dialCode + numberPart,
+          },
+        };
+      }
 
       return {
         ...prev,
-        personalInfo: {
-          ...prev.personalInfo,
-          country: value,
-          phone: dialCode + numberPart,
-        },
+        personalInfo: { ...prev.personalInfo, [name]: value },
       };
-    }
-
-    return {
-      ...prev,
-      personalInfo: { ...prev.personalInfo, [name]: value },
-    };
-  });
-};
-
+    });
+  };
 
   const handleProfessionalChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
+    index: number
   ) => {
     const { name, value } = e.target;
+    setFormData((prev) => {
+      const updatedJobs = [...prev.professionalInfo];
+      updatedJobs[index] = { ...updatedJobs[index], [name]: value };
+      return { ...prev, professionalInfo: updatedJobs };
+    });
+  };
+  const addJob = () => {
     setFormData((prev) => ({
       ...prev,
-      professionalInfo: { ...prev.professionalInfo, [name]: value },
+      professionalInfo: [
+        ...prev.professionalInfo,
+        { title: "", experience: "", company: "", skills: "" },
+      ],
     }));
   };
 
-    const handleEducationChange = (
+  const removeJob = (index: number) => {
+    setFormData((prev) => {
+      const updatedJobs = prev.professionalInfo.filter((_, i) => i !== index);
+      return { ...prev, professionalInfo: updatedJobs };
+    });
+  };
+
+  const handleEducationChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
@@ -118,11 +136,9 @@ const handlePersonalChange = (
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      educationInfo: { ...prev.educationInfo, [name]: value }
+      educationInfo: { ...prev.educationInfo, [name]: value },
     }));
   };
-
-
 
   const handleResumeUpload = (file: File | null) => {
     setFormData((prev) => ({ ...prev, resume: file }));
@@ -133,35 +149,55 @@ const handlePersonalChange = (
       case 1:
         return Boolean(
           formData.personalInfo.fullName &&
-          formData.personalInfo.email &&
-          formData.personalInfo.city &&
-          formData.personalInfo.country &&
-          formData.personalInfo.dateOfBirth
+            formData.personalInfo.email &&
+            formData.personalInfo.city &&
+            formData.personalInfo.country &&
+            formData.personalInfo.dateOfBirth
         );
+
       case 2:
-        return Boolean(
-          formData.professionalInfo.title &&
-          formData.professionalInfo.experience &&
-          formData.professionalInfo.skills
+        // Completed if user entered something OR left the step
+        return (
+          visitedSteps.includes(2) ||
+          formData.professionalInfo.some(
+            (job) => job.title || job.experience || job.company || job.skills
+          )
         );
+
       case 3:
-        return Boolean(
-          formData.educationInfo.degree &&
-          formData.educationInfo.school
+        return (
+          visitedSteps.includes(3) ||
+          Boolean(
+            formData.educationInfo.degree ||
+              formData.educationInfo.school ||
+              formData.educationInfo.graduationYear ||
+              formData.educationInfo.gpa
+          )
         );
+
       case 4:
         return Boolean(formData.resume);
+
       default:
         return false;
     }
   };
 
-  const getCompletedSteps = (): number[] =>
-    STEPS.map((step) => step.id).filter(validateStep);
+  const [visitedSteps, setVisitedSteps] = useState<number[]>([]);
+
+  const markStepVisited = (step: number) => {
+    setVisitedSteps((prev) => (prev.includes(step) ? prev : [...prev, step]));
+  };
 
   const nextStep = () => {
-    if (currentStep < STEPS.length && validateStep(currentStep)) {
-      setCurrentStep((prev) => prev + 1);
+    if (currentStep < STEPS.length) {
+      setVisitedSteps((prev) =>
+        prev.includes(currentStep) ? prev : [...prev, currentStep]
+      );
+
+      if (canProceed) {
+        setCurrentStep((prev) => prev + 1);
+      }
     }
   };
 
@@ -170,6 +206,9 @@ const handlePersonalChange = (
       setCurrentStep((prev) => prev - 1);
     }
   };
+
+  const getCompletedSteps = (): number[] =>
+    STEPS.map((step) => step.id).filter((id) => validateStep(id));
 
   const handleSubmit = async () => {
     console.log("Submitting Employee data:", formData);
@@ -180,7 +219,21 @@ const handlePersonalChange = (
   };
 
   const completedSteps = getCompletedSteps();
-  const canProceed = validateStep(currentStep);
+  const canProceed = (() => {
+    switch (currentStep) {
+      case 1:
+        return validateStep(1);
+      case 2:
+        return true;
+
+      case 3:
+        return true;
+      case 4:
+        return validateStep(4);
+      default:
+        return false;
+    }
+  })();
   const isLastStep = currentStep === STEPS.length;
   const ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
     User,
@@ -269,7 +322,7 @@ const handlePersonalChange = (
                     onChange={handlePersonalChange}
                     required
                   />
-                  
+
                   <InputField
                     label="City"
                     name="city"
@@ -287,7 +340,7 @@ const handlePersonalChange = (
                     options={COUNTRY_OPTIONS}
                     required
                   />
-                  
+
                   <InputField
                     label="Phone"
                     name="phone"
@@ -322,47 +375,79 @@ const handlePersonalChange = (
                     onChange={handlePersonalChange}
                   />
                 </div>
+                <div className="mt-6">
+                  <TextAreaField
+                    label="About You"
+                    name="about"
+                    value={formData.personalInfo.about}
+                    onChange={handlePersonalChange}
+                    placeholder="write a brief introduction about yourself..."
+                  />
+                </div>
               </FormStep>
             )}
 
             {currentStep === 2 && (
               <FormStep title="Step 2: Professional Information">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputField
-                      label="Current Job Title"
-                      name="title"
-                      value={formData.professionalInfo.title}
-                      onChange={handleProfessionalChange}
-                      required
-                      placeholder="e.g. Software Developer"
-                    />
-                    <SelectField
-                      label="Years of Experience"
-                      name="experience"
-                      value={formData.professionalInfo.experience}
-                      onChange={handleProfessionalChange}
-                      options={EXPERIENCE_OPTIONS}
-                      required
-                    />
-                  </div>
-                  
-                  <InputField
-                    label="Current/Previous Company"
-                    name="company"
-                    value={formData.professionalInfo.company}
-                    onChange={handleProfessionalChange}
-                    placeholder="Company name"
-                  />
-                  
-                  <TextAreaField
-                    label="Key Skills"
-                    name="skills"
-                    value={formData.professionalInfo.skills}
-                    onChange={handleProfessionalChange}
-                    required
-                    placeholder="List your key skills, technologies, and competencies..."
-                  />
+                <div className="space-y-8">
+                  {formData.professionalInfo.map((job, index) => (
+                    <div
+                      key={index}
+                      className="p-4 border rounded-xl space-y-6 bg-white/70 shadow-sm"
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <InputField
+                          label="Job Title"
+                          name="title"
+                          value={job.title}
+                          onChange={(e) => handleProfessionalChange(e, index)}
+                          placeholder="e.g. Software Developer"
+                        />
+                        <SelectField
+                          label="Years of Experience"
+                          name="experience"
+                          value={job.experience}
+                          onChange={(e) => handleProfessionalChange(e, index)}
+                          options={EXPERIENCE_OPTIONS}
+                        />
+                      </div>
+
+                      <InputField
+                        label="Company"
+                        name="company"
+                        value={job.company}
+                        onChange={(e) => handleProfessionalChange(e, index)}
+                        placeholder="Company name"
+                      />
+
+                      <TextAreaField
+                        label="Key Skills"
+                        name="skills"
+                        value={job.skills}
+                        onChange={(e) => handleProfessionalChange(e, index)}
+                        placeholder="List your key skills, technologies, and competencies..."
+                      />
+
+                      {/* Remove button (except for first job) */}
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => removeJob(index)}
+                          className="text-red-500 hover:underline text-sm"
+                        >
+                          Remove this Job
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addJob}
+                    className="mt-4 px-4 py-2 bg-[#76944C] text-white rounded-xl hover:shadow-md"
+                  >
+                    + Add Another Job
+                  </button>
                 </div>
               </FormStep>
             )}
@@ -377,7 +462,6 @@ const handlePersonalChange = (
                       value={formData.educationInfo.degree}
                       onChange={handleEducationChange}
                       options={DEGREE_OPTIONS}
-                      required
                     />
                     <InputField
                       label="Graduation Year"
@@ -388,16 +472,15 @@ const handlePersonalChange = (
                       placeholder="e.g. 2020"
                     />
                   </div>
-                  
+
                   <InputField
                     label="School/University"
                     name="school"
                     value={formData.educationInfo.school}
                     onChange={handleEducationChange}
-                    required
                     placeholder="Institution name"
                   />
-                  
+
                   <InputField
                     label="GPA (Optional)"
                     name="gpa"

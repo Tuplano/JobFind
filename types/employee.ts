@@ -8,13 +8,14 @@ export interface EmployeeSetupData {
     dateOfBirth: string;
     linkedin: string;
     portfolio: string;
+    about: string;
   };
   professionalInfo: {
     title: string;
     experience: string;
     company: string;
     skills: string;
-  };
+  }[];
   educationInfo: {
     degree: string;
     school: string;
