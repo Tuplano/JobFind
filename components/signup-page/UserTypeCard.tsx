@@ -13,16 +13,16 @@ function UserTypeCard({
   return (
     <div
       onClick={onSelect}
-      className={`cursor-pointer p-6 border-2 rounded-xl transition-all duration-200 ${
+      className={`p-4 rounded-xl cursor-pointer transition-all duration-300 border-2  ${
         isSelected
-          ? "border-blue-500 bg-blue-50 shadow-md"
-          : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+         ? 'border-[#C8DAA6] bg-[#FBF5DB] shadow-lg transform scale-105'
+          : 'border-[#76944C] bg-[#C8DAA6] hover:border-[#FBF5DB] hover:shadow-md'
       }`}
     >
       <div className="flex items-center space-x-3 mb-4">
         <div
           className={`p-3 rounded-lg ${
-            isSelected ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"
+          isSelected ? 'bg-[#76944C] text-white' : 'bg-[#C8DAA6] text-[#76944C]'
           }`}
         >
           {icon}
@@ -30,12 +30,16 @@ function UserTypeCard({
         <div>
           <h3
             className={`font-semibold text-lg ${
-              isSelected ? "text-blue-900" : "text-gray-800"
+          isSelected ? 'text-[#76944C]' : 'text-[#76944C]'
             }`}
           >
             {title}
           </h3>
-          <p className="text-gray-600 text-sm">{description}</p>
+                  <p className={`text-xs ${
+          isSelected ? 'text-[#76944C]' : 'text-[#C0B6AC]'
+        }`}>
+          {description}
+        </p>
         </div>
       </div>
       <ul className="space-y-2">
@@ -46,7 +50,7 @@ function UserTypeCard({
           >
             <CheckCircle
               size={16}
-              className={isSelected ? "text-blue-500" : "text-gray-400"}
+              className={isSelected ? "text-green-600" : "text-gray-400"}
             />
             <span>{benefit}</span>
           </li>

@@ -168,7 +168,6 @@ export default function AuthPage() {
     redirectByRole(userRole);
   };
 
-  // SIGNUP (email/password)
   const handleSignup = async () => {
     if (!validateSignup()) return;
 
@@ -184,7 +183,6 @@ export default function AuthPage() {
       termsAccepted,
     } = signupData;
 
-    // 1️⃣ Create user in Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -282,24 +280,23 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Toaster position="top-right" />
+ <div className="min-h-screen bg-gradient-to-br from-[#FBF5DB] via-[#C8DAA6] to-[#FBF5DB] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-600 p-3 rounded-full">
-              <Building2 className="h-8 w-8 text-white" />
+            <div className="bg-[#76944C] p-3 rounded-full shadow-lg">
+              <Building2 className="h-8 w-8 text-[#FBF5DB]" />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">
-            {isLogin ? "Welcome Back" : "Create account"}
+          <h2 className="text-3xl font-bold text-[#76944C]">
+            {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-500">
             {isLogin ? "Sign in to your account" : "Sign up to get started"}
           </p>
         </div>
 
-        <div className="flex bg-gray-100 p-1 rounded-lg">
+        <div className="flex bg-[#C8DAA6] p-1 rounded-lg shadow-sm">
           <button
             onClick={() => {
               setIsLogin(true);
@@ -307,8 +304,8 @@ export default function AuthPage() {
             }}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
               isLogin
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
+                ? "bg-[#FBF5DB] text-[#76944C] shadow-md"
+                : "text-[#76944C] hover:text-[#76944C] hover:bg-[#FBF5DB]"
             }`}
           >
             Sign In
@@ -320,8 +317,8 @@ export default function AuthPage() {
             }}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
               !isLogin
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-600 hover:text-gray-800"
+                ? "bg-[#FBF5DB] text-[#76944C] shadow-md"
+                : "text-[#76944C] hover:text-[#76944C] hover:bg-[#FBF5DB]"
             }`}
           >
             Sign Up
@@ -329,7 +326,7 @@ export default function AuthPage() {
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900 text-center">
+          <h3 className="text-lg font-medium text-[#76944C] text-center">
             I am a...
           </h3>
           <div className="grid grid-cols-2 gap-4">
@@ -364,7 +361,7 @@ export default function AuthPage() {
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <div className="bg-[#FBF5DB] p-8 rounded-xl shadow-xl border border-[#C8DAA6]">
           {isLogin ? (
             <div className="space-y-6">
               <InputField
@@ -373,6 +370,7 @@ export default function AuthPage() {
                 type="email"
                 value={loginData.email}
                 onChange={handleLoginChange}
+                placeholder="your@email.com"
                 required
               />
               <div className="relative">
@@ -382,12 +380,13 @@ export default function AuthPage() {
                   type={showPassword ? "text" : "password"}
                   value={loginData.password}
                   onChange={handleLoginChange}
+                  placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-[38px] text-[#C0B6AC] hover:text-[#76944C] transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -397,16 +396,16 @@ export default function AuthPage() {
                 <label className="flex items-center">
                   <input
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    className="h-4 w-4 text-[#76944C] border-[#C8DAA6] rounded focus:ring-[#76944C]"
                   />
-                  <span className="ml-2 text-sm text-gray-600">
+                  <span className="ml-2 text-sm text-[#C0B6AC]">
                     Remember me
                   </span>
                 </label>
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-sm text-blue-600 hover:text-blue-800"
+                  className="text-sm text-[#76944C] hover:text-[#FFD21F] transition-colors font-medium"
                 >
                   Forgot password?
                 </button>
@@ -419,10 +418,10 @@ export default function AuthPage() {
               <button
                 onClick={handleLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-lg transition duration-200 space-x-2"
+                className="w-full flex items-center justify-center py-3 px-4 bg-[#76944C] hover:bg-[#5a7039] disabled:bg-[#C0B6AC] text-[#FBF5DB] font-semibold rounded-lg transition duration-200 space-x-2 shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#FBF5DB]"></div>
                 ) : (
                   <>
                     <span>Sign In</span>
@@ -486,7 +485,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-[38px] text-[#C0B6AC] hover:text-[#76944C] transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -505,7 +504,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((s) => !s)}
-                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-[38px] text-[#C0B6AC] hover:text-[#76944C] transition-colors"
                 >
                   {showConfirmPassword ? (
                     <EyeOff size={20} />
@@ -522,12 +521,12 @@ export default function AuthPage() {
                   name="termsAccepted"
                   checked={signupData.termsAccepted}
                   onChange={handleSignupChange}
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded mt-1"
+                  className="h-4 w-4 text-[#76944C] border-[#C8DAA6] rounded mt-1 focus:ring-[#76944C]"
                 />
-                <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
+                <label htmlFor="terms" className="ml-2 text-sm text-[#C0B6AC]">
                   I agree to the{" "}
-                  <button className="text-blue-600 underline">Terms</button> and{" "}
-                  <button className="text-blue-600 underline">Privacy</button>
+                  <button className="text-[#76944C] underline hover:text-[#FFD21F] font-medium">Terms</button> and{" "}
+                  <button className="text-[#76944C] underline hover:text-[#FFD21F] font-medium">Privacy</button>
                 </label>
               </div>
               {errors.termsAccepted && (
@@ -540,10 +539,10 @@ export default function AuthPage() {
               <button
                 onClick={handleSignup}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold rounded-lg transition duration-200 space-x-2"
+                className="w-full flex items-center justify-center py-3 px-4 bg-[#FFD21F] hover:bg-[#e6bd1c] disabled:bg-[#C0B6AC] text-[#76944C] font-bold rounded-lg transition duration-200 space-x-2 shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#76944C]"></div>
                 ) : (
                   <>
                     <span>Create Account</span>
@@ -555,22 +554,22 @@ export default function AuthPage() {
           )}
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <div className="bg-[#FBF5DB] p-6 rounded-xl shadow-xl border border-[#C8DAA6]">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-[#C8DAA6]" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">
+              <span className="px-2 bg-[#FBF5DB] text-[#C0B6AC]">
                 Or continue with
               </span>
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-3">
+          <div className="mt-6">
             <button
               onClick={handleGoogleLogin}
-              className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition duration-200"
+              className="w-full inline-flex justify-center py-3 px-4 border border-[#C8DAA6] rounded-lg shadow-sm bg-[#FBF5DB] text-sm font-medium text-[#76944C] hover:bg-[#C8DAA6] hover:border-[#76944C] transition duration-200"
             >
               {/* Google icon */}
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -591,9 +590,8 @@ export default function AuthPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span className="ml-2">Google</span>
+              <span className="ml-2">Continue with Google</span>
             </button>
-
           </div>
         </div>
       </div>
